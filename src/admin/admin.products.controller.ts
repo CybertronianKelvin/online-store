@@ -6,13 +6,16 @@ import {
   Post,
   Redirect,
   Render,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { ProductsService } from '../models/products.service';
-import { Product } from '@prisma/client';
 import { CreateProductDto } from '../models/product.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ProductValidator } from '../validators/product.validator';
+import * as fs from 'fs';
+
 @Controller('/admin/products')
 export class AdminProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -32,14 +35,34 @@ export class AdminProductsController {
   async store(
     @Body() product: CreateProductDto,
     @UploadedFile() file: Express.Multer.File,
+    @Req() request,
   ): Promise<void> {
-    const newProduct = {
-      image: file.filename,
-      description: product.description,
-      name: product.name,
-      price: Number(product.price),
-    };
-    await this.productsService.createOrUpdate(newProduct);
+    const toValidate: string[] = [
+      'name',
+      'description',
+      'price',
+      'imageCreate',
+    ];
+    const errors: string[] = ProductValidator.validate(
+      product,
+      file,
+      toValidate,
+    );
+
+    if (errors.length > 0) {
+      if (file) {
+        fs.unlinkSync(file.path);
+      }
+      request.session.flashErrors = errors;
+    } else {
+      const newProduct = {
+        image: file.filename,
+        description: product.description,
+        name: product.name,
+        price: Number(product.price),
+      };
+      await this.productsService.createOrUpdate(newProduct);
+    }
   }
 
   @Post('/:id')

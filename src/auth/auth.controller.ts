@@ -14,10 +14,7 @@ import { UsersService } from '../models/users.service'; // Import User model fro
 
 @Controller('/auth')
 export class AuthController {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly usersService: UsersService,
-  ) {} // Inject PrismaService
+  constructor(private readonly usersService: UsersService) {} // Inject PrismaService
 
   @Get('/register')
   @Render('auth/register')
