@@ -18,7 +18,6 @@ export class ProductsController {
 
   @Get('/:id')
   async show(@Param() params, @Res() response) {
-    console.log({ response });
     const product = await this.productsService.findOne(params.id);
     if (product === undefined) {
       return response.redirect('/products');
