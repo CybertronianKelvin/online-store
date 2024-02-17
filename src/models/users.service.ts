@@ -34,4 +34,23 @@ export class UsersService {
 
     return null;
   }
+
+  async findOne(id: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
+  }
+
+  async updateBalance(id: number, balance: number): Promise<User> {
+    return this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        balance: balance,
+      },
+    });
+  }
 }

@@ -10,7 +10,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma.service'; // Import PrismaService
 import { User } from '@prisma/client';
-import { UsersService } from '../models/users.service'; // Import User model from Prisma
+import { UsersService } from '../models/users.service';
+import { UserValidator } from '../validators/user.validator'; // Import User model from Prisma
 
 @Controller('/auth')
 export class AuthController {
@@ -27,14 +28,22 @@ export class AuthController {
 
   @Post('/store')
   @Redirect('/')
-  async store(@Body() body: any) {
-    const newUser = await this.usersService.createOrUpdate({
-      name: body.name,
-      password: body.password,
-      email: body.email,
-      role: 'client',
-      balance: 1000,
-    });
+  async store(@Body() body: any, @Res() response, @Req() request) {
+    const toValidate: string[] = ['name', 'email', 'password'];
+    const errors: string[] = UserValidator.validate(body, toValidate);
+    if (errors.length > 0) {
+      request.session.flashErrors = errors;
+      return response.redirect('/auth/register');
+    } else {
+      await this.usersService.createOrUpdate({
+        name: body.name,
+        password: body.password,
+        email: body.email,
+        role: 'client',
+        balance: 1000,
+      });
+      return response.redirect('/auth/login');
+    }
   }
 
   @Get('/login') @Render('auth/login') login() {

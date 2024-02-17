@@ -17,6 +17,20 @@ export class ProductsService {
     });
   }
 
+  async findByIds(ids: string[]): Promise<Product[]> {
+    // Convert ids to numbers
+    const numericIds = ids.map((id) => parseInt(id, 10));
+
+    // Use Prisma Client to find products by ids
+    return this.prisma.product.findMany({
+      where: {
+        id: {
+          in: numericIds,
+        },
+      },
+    });
+  }
+
   async createOrUpdate(productData: CreateProductDto): Promise<Product> {
     return this.prisma.product.create({
       data: {

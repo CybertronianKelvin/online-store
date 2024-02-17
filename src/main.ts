@@ -31,6 +31,14 @@ async function bootstrap() {
   hbs.registerPartials(join(__dirname, '..', 'views/layouts'));
   hbsUtils(hbs).registerWatchedPartials(join(__dirname, '..', 'views/layouts'));
 
+  app.use('/admin*', function (req, res, next) {
+    if (req.session.user && req.session.user.role == 'admin') {
+      next();
+    } else {
+      res.redirect('/');
+    }
+  });
+
   await app.listen(3000);
 }
 bootstrap();

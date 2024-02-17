@@ -6,6 +6,11 @@
     <div class="card-body">
       {{#with viewData.product}}
         <form method="POST" action="/admin/products/{{getId}}/update" enctype="multipart/form-data">
+          {{#if flashErrors}}
+            {{#each flashErrors}}
+              <p class="alert alert-danger">{{this}}</p>
+            {{/each}}
+          {{/if}}
           <div class="row">
             <div class="col">
               <div class="mb-3 row">
