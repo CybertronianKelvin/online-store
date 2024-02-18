@@ -1,16 +1,16 @@
 {{#> app}}
-{{#*inline "content"}}
-<div class="row">
-    {{#each viewData.products}}
-    <div class="col-md-4 col-lg-3 mb-2">
-        <div class="card">
+  {{#*inline "content"}}
+    <div class="row">
+      {{#each viewData.products}}
+        <div class="col-md-4 col-lg-3 mb-2">
+          <div class="card">
             <img src="/uploads/{{image}}" class="card-img-top img-card">
             <div class="card-body text-center">
-                <a href="/products/{{id}}" class="btn bg-primary text-white">{{name}}</a>
+              <a href="/products/{{id}}" class="btn bg-primary text-white">{{name}}</a>
             </div>
+          </div>
         </div>
+      {{/each}}
     </div>
-    {{/each}}
-</div>
-{{/inline}}
+  {{/inline}}
 {{/app}}

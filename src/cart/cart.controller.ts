@@ -97,7 +97,7 @@ export class CartController {
       for (const product of productsInCart) {
         const quantity = productsInSession[product.id];
         const item = {
-          quantity,
+          quantity: Number(quantity),
           price: product.price,
           product: {
             connect: { id: product.id },
@@ -109,11 +109,7 @@ export class CartController {
 
       const newOrder = await this.ordersService.createOrUpdate({
         total,
-        items: {
-          createMany: {
-            data: items,
-          },
-        },
+        items,
         user: {
           connect: { id: userId },
         },

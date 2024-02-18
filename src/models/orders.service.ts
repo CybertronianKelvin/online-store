@@ -6,32 +6,48 @@ import { PrismaService } from '../prisma.service';
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
-  // @todo types meeds sorting here
   async createOrUpdate(order: any): Promise<any> {
     const { items, ...orderData } = order; // Destructure 'items' from the order object
-
-    // Upsert the order without 'items'
-    const updatedOrder = await this.prisma.order.upsert({
-      where: {
-        id: order.id,
-      },
-      update: orderData,
-      create: orderData,
+    // Create the order without 'items'
+    const createdOrder = await this.prisma.order.create({
+      data: orderData,
     });
 
-    // Update or create 'items' associated with the order
+    // Create 'items' associated with the order
     if (items && items.length > 0) {
       for (const item of items) {
-        await this.prisma.item.upsert({
-          where: {
-            id: item.id, // Assuming 'id' is the primary key of the item
+        await this.prisma.item.create({
+          data: {
+            ...item,
+            order: {
+              // Associate the item with the order
+              connect: {
+                id: createdOrder.id, // Use the ID of the created order
+              },
+            },
+            productId: item.productId,
           },
-          update: item,
-          create: item,
         });
       }
     }
 
-    return updatedOrder;
+    return createdOrder;
+  }
+
+  async findByUserId(id: number): Promise<any> {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        userId: id, // Assuming `userId` is the foreign key in the Order model referencing the User ID
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    });
+
+    return orders;
   }
 }
